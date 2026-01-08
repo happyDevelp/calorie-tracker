@@ -9,3 +9,5 @@ export const MealActions = createActionGroup({
     'Load Meals': emptyProps,
   }
 })
+
+// NgRx Architecture: actions

@@ -11,14 +11,19 @@ export const initialState: MealsState = {
 }
 
 export const mealsReducer = createReducer(
-    initialState,
-    on(MealActions.addMeal, (state, {meal}) => ({
-      ...state,
-      meals: [...state.meals, meal] // Як state.meals + meal у Kotlin
-    })),
+  // first param of createReducer - initialState
+  initialState,
 
-    on(MealActions.deleteMeal, (state, {id}) => ({
-      ...state,
-      meals: state.meals.filter(m => m.id !== id)
-    }))
+  // on - listener for event. f.e.: If the "add meal" event/action comes, then execute the appropriate logic
+  on(MealActions.addMeal, (state, {meal}) => ({
+    ...state, // Copy all existing state properties
+    meals: [...state.meals, meal] // Create a new array with all old meals + the new one
+  })),
+
+  on(MealActions.deleteMeal, (state, {id}) => ({
+    ...state,
+    meals: state.meals.filter(m => m.id !== id)
+  }))
 );
+
+// NgRx Architecture: reducer
