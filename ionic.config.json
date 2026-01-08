@@ -1,0 +1,7 @@
+{
+  "name": "calorie-tracker",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "angular-standalone"
+}
