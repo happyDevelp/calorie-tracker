@@ -1,11 +1,12 @@
-import {Component, inject, OnInit} from '@angular/core';
-import {Store} from '@ngrx/store';
-import {CommonModule} from '@angular/common';
+import { CommonModule } from '@angular/common'; // Обов'язково додай цей імпорт зверху
 import {
   IonHeader, IonToolbar, IonTitle, IonContent,
+  IonList, IonItem, IonLabel, IonNote
 } from '@ionic/angular/standalone';
-import {selectAllMeals} from '../state/meals.selectors';
-import {MealActions} from '../state/meals.actions';
+import {Component, inject, OnInit} from "@angular/core";
+import {Store} from "@ngrx/store";
+import {selectAllMeals} from "../state/meals.selectors";
+import {MealActions} from "../state/meals.actions";
 
 @Component({
   selector: 'app-home',
@@ -13,8 +14,15 @@ import {MealActions} from '../state/meals.actions';
   styleUrls: ['home.page.scss'],
   standalone: true,
   imports: [
-    CommonModule, // Required for the 'async' pipe
-    IonHeader, IonToolbar, IonTitle, IonContent,
+    CommonModule, // Це розблокує *ngFor та | async
+    IonHeader,
+    IonToolbar,
+    IonTitle,
+    IonContent,
+    IonList,
+    IonItem,
+    IonLabel,
+    IonNote
   ],
 })
 
