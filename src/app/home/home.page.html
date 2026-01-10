@@ -6,17 +6,28 @@
 
 <ion-content>
   <ion-list>
-    <ion-item *ngFor="let meal of (meals$ | async)">
 
-      <ion-label>
-        <h2>{{ meal.title }}</h2>
-        <p>{{ meal.date | date:'shortTime' }}</p>
-      </ion-label>
+    @for (meal of (meals$ | async); track meal.id) {
 
-      <ion-note slot="end" color="primary">
-        {{ meal.calories }} kcal
-      </ion-note>
+      <ion-item>
 
-    </ion-item>
+        <ion-label>
+          <h2>{{ meal.title }}</h2>
+          <p>{{ meal.date | date:'shortTime' }}</p>
+        </ion-label>
+
+        <ion-note slot="end" color="primary">
+          {{ meal.calories }} kcal
+        </ion-note>
+      </ion-item>
+
+    }
   </ion-list>
+
+  <ion-fab slot="fixed" vertical="bottom" horizontal="end">
+    <ion-fab-button (click)="addNewMeal()">
+      <ion-icon name="add"></ion-icon>
+    </ion-fab-button>
+  </ion-fab>
+
 </ion-content>

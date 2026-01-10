@@ -6,4 +6,6 @@ export const selectMealsState = createFeatureSelector<MealsState>('meals');
 
 // 2. Select the specific "meals" array for our UI components
 export const selectAllMeals = createSelector(
+  selectMealsState,
+  (state: MealsState) => state.meals // Returns only the list of meal objects
 );
