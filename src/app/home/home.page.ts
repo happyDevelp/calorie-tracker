@@ -1,4 +1,4 @@
-import {CommonModule} from '@angular/common'; // Обов'язково додай цей імпорт зверху
+import {CommonModule} from '@angular/common';
 import {
   IonHeader, IonToolbar, IonTitle, IonContent,
   IonList, IonItem, IonLabel, IonNote, IonFab, IonFabButton, IonIcon, AlertController
@@ -7,8 +7,9 @@ import {Component, inject, OnInit} from "@angular/core";
 import {Store} from "@ngrx/store";
 import {selectAllMeals} from "../state/meals.selectors";
 import {MealActions} from "../state/meals.actions";
-import {add} from "ionicons/icons";
 import {addIcons} from "ionicons";
+import {add, alertCircleOutline} from "ionicons/icons";
+import {ToastController} from "@ionic/angular";
 
 @Component({
   selector: 'app-home',
@@ -16,7 +17,7 @@ import {addIcons} from "ionicons";
   styleUrls: ['home.page.scss'],
   standalone: true,
   imports: [
-    CommonModule, // Це розблокує *ngFor та | async
+    CommonModule, // This unlocks *ngFor and | async
     IonHeader,
     IonToolbar,
     IonTitle,
@@ -37,10 +38,12 @@ export class HomePage implements OnInit {
   meals$ = this.store.select(selectAllMeals);
 
   // Inject a window controller
-  private alertCtrl = inject(AlertController);
+  private alertController = inject(AlertController);
+  private toastController = inject(ToastController);
+
 
   constructor() {
-    addIcons({add})
+    addIcons({add, alertCircleOutline});
   }
 
   // This is a method that is automatically called by Angular once when the component appears on the screen
@@ -56,13 +59,13 @@ export class HomePage implements OnInit {
   }
 
   async addNewMeal() {
-    const alert = await this.alertCtrl.create({
+    const alert = await this.alertController.create({
       header: "Add Meal",
       inputs: [
         {
           name: 'title',
           type: 'text',
-          placeholder: "Pizza"
+          placeholder: "F.e. Pizza...",
         },
         {
           name: "calories",
@@ -70,27 +73,54 @@ export class HomePage implements OnInit {
           placeholder: "calories"
         }
       ],
-        buttons: [
-      {
-        text: "Cancel",
-        role: "cancel",
-      },
-          {
-            text: "Add",
-            handler: (data) => {
-              this.store.dispatch(MealActions.addMeal({
-                meal: {
-                  id: Date.now().toString(),
-                  title: data.title,
-                  calories: Number(data.calories),
-                  date: new Date().toISOString()
-                }
-              }));
-            }
-          }
+      buttons: [
+        {
+          text: "Cancel",
+          role: "cancel",
+        },
+        {
+          text: "Add",
+          // HANDLER: This is a callback function
+          handler: (data) => { // 'data' is an object automatically created by Ionic from inputs.
+            // It looks like: { title: "Pizza", calories: "500" } (based on 'name' fields above)
 
+            console.log("data param from handler: ", data);
+
+            // VALIDATION: check whether the fields are not empty
+            if (!data.title || !data.calories) {
+              this.showErrorToast('Please fill in all fields!');
+              return false;
+            }
+            this.store.dispatch(MealActions.addMeal({
+              meal: {
+                id: Date.now().toString(),
+                title: data.title,
+                calories: Number(data.calories),
+                date: new Date().toISOString()
+              }
+            }));
+            return true;
+          }
+        }
       ]
     })
     await alert.present();
+  }
+
+
+  async deleteMeal(mealId: number) {
+    //this.store.remove
+  }
+
+
+  async showErrorToast(message: string) {
+    const toast = await this.toastController.create({
+      message: message,
+      duration: 2500,
+      color: "danger",
+      position: "bottom",
+      icon: "alert-circle-outline"
+    });
+    await toast.present();
   }
 }
