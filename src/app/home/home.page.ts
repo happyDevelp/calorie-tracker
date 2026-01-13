@@ -1,14 +1,15 @@
 import {CommonModule} from '@angular/common';
 import {
   IonHeader, IonToolbar, IonTitle, IonContent,
-  IonList, IonItem, IonLabel, IonNote, IonFab, IonFabButton, IonIcon, AlertController
+  IonList, IonItem, IonLabel, IonNote, IonFab, IonFabButton, IonIcon, AlertController, IonItemSliding, IonItemOptions,
+  IonItemOption, IonButton, Platform
 } from '@ionic/angular/standalone';
 import {Component, inject, OnInit} from "@angular/core";
 import {Store} from "@ngrx/store";
 import {selectAllMeals} from "../state/meals.selectors";
 import {MealActions} from "../state/meals.actions";
 import {addIcons} from "ionicons";
-import {add, alertCircleOutline} from "ionicons/icons";
+import {add, alertCircleOutline, trash} from "ionicons/icons";
 import {ToastController} from "@ionic/angular";
 
 @Component({
@@ -28,7 +29,11 @@ import {ToastController} from "@ionic/angular";
     IonNote,
     IonFab,
     IonFabButton,
-    IonIcon
+    IonIcon,
+    IonItemSliding,
+    IonItemOptions,
+    IonItemOption,
+    IonButton
   ],
 })
 
@@ -40,11 +45,19 @@ export class HomePage implements OnInit {
   // Inject a window controller
   private alertController = inject(AlertController);
   private toastController = inject(ToastController);
+  private platform = inject(Platform);
+  isDesktop = false;
 
 
   constructor() {
-    addIcons({add, alertCircleOutline});
+    addIcons({add, alertCircleOutline, trash});
+
+    // 2. Determine if this is a desktop browser
+    // This function returns true if it's Windows, macOS, or Linux.
+    // It will return false if it's a mobile browser or a native app
+    this.isDesktop = this.platform.is('desktop');
   }
+
 
   // This is a method that is automatically called by Angular once when the component appears on the screen
   ngOnInit() {
@@ -108,9 +121,9 @@ export class HomePage implements OnInit {
   }
 
 
-  async deleteMeal(mealId: number) {
-    //this.store.remove
-  }
+  async deleteMeal(mealId: string) {
+    this.store.dispatch(MealActions.deleteMeal({ id: mealId }))
+}
 
 
   async showErrorToast(message: string) {

@@ -25,3 +25,9 @@
 #container a {
   text-decoration: none;
 }
+
+/* By default (on phones), hide the desktop button */
+.desktop-delete-btn {
+  display: none;
+}
+

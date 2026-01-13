@@ -9,18 +9,33 @@
 
     @for (meal of (meals$ | async); track meal.id) {
 
-      <ion-item>
+      <ion-item-sliding [disabled]="isDesktop">
+        <ion-item>
 
-        <ion-label>
-          <h2>{{ meal.title }}</h2>
-          <p>{{ meal.date | date:'shortTime' }}</p>
-        </ion-label>
+          <ion-label>
+            <h2>{{ meal.title }}</h2>
+            <p>{{ meal.date | date:'shortTime' }}</p>
+          </ion-label>
 
-        <ion-note slot="end" color="primary">
-          {{ meal.calories }} kcal
-        </ion-note>
-      </ion-item>
+          <ion-note slot="end" color="primary">
+            {{ meal.calories }} kcal
+          </ion-note>
 
+          @if (isDesktop) {
+            <ion-button
+              class="desktop-delete-btn" slot="end" fill="clear" color="danger" (click)="deleteMeal(meal.id)">
+              <ion-icon slot="icon-only" name="trash"></ion-icon>
+            </ion-button>
+          }
+
+        </ion-item>
+
+        <ion-item-options side="end">
+          <ion-item-option color="danger" (click)="deleteMeal(meal.id)">
+            <ion-icon slot="icon-only" name="trash"></ion-icon>
+          </ion-item-option>
+        </ion-item-options>
+      </ion-item-sliding>
     }
   </ion-list>
 
