@@ -9,7 +9,7 @@ import {Store} from "@ngrx/store";
 import {selectAllMeals} from "../state/meals.selectors";
 import {MealActions} from "../state/meals.actions";
 import {addIcons} from "ionicons";
-import {add, alertCircleOutline, trash} from "ionicons/icons";
+import {add, alertCircleOutline, checkmarkCircleOutline, trash} from "ionicons/icons";
 import {ToastController} from "@ionic/angular";
 
 @Component({
@@ -50,7 +50,7 @@ export class HomePage implements OnInit {
 
 
   constructor() {
-    addIcons({add, alertCircleOutline, trash});
+    addIcons({add, alertCircleOutline, checkmarkCircleOutline, trash});
 
     // 2. Determine if this is a desktop browser
     // This function returns true if it's Windows, macOS, or Linux.
@@ -101,7 +101,7 @@ export class HomePage implements OnInit {
 
             // VALIDATION: check whether the fields are not empty
             if (!data.title || !data.calories) {
-              this.showErrorToast('Please fill in all fields!');
+              this.showToastToast('Please fill in all fields!', 'danger', 'alert-circle-outline');
               return false;
             }
             this.store.dispatch(MealActions.addMeal({
@@ -122,17 +122,42 @@ export class HomePage implements OnInit {
 
 
   async deleteMeal(mealId: string) {
-    this.store.dispatch(MealActions.deleteMeal({id: mealId}))
+    const alert = await this.alertController.create({
+      header:  "Delete Meal",
+      message: `Are you sure you want to delete Meal?`,
+      buttons: [
+        {
+          text: "Cancel",
+          role: "cancel",
+          cssClass: "secondary"
+        },
+        {
+          role: "destructive",
+          text: "Yes, Delete",
+          handler: () => {
+            this.store.dispatch(MealActions.deleteMeal({id: mealId}))
+
+            this.showToastToast(
+              'Successfully deleted',
+              'success',
+              'checkmark-circle-outline'
+            )
+          }
+        }
+      ]
+    })
+    await alert.present();
+
   }
 
 
-  async showErrorToast(message: string) {
+  async showToastToast(message: string, color: string, icon: string) {
     const toast = await this.toastController.create({
       message: message,
       duration: 2500,
-      color: "danger",
+      color: color,
       position: "bottom",
-      icon: "alert-circle-outline"
+      icon: icon
     });
     await toast.present();
   }
