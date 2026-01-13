@@ -1,20 +1,48 @@
-<ion-header [translucent]="true">
-  <ion-toolbar>
-    <ion-title>
-      Blank
-    </ion-title>
+<ion-header>
+  <ion-toolbar color="primary">
+    <ion-title>My Calorie Tracker</ion-title>
   </ion-toolbar>
 </ion-header>
 
-<ion-content [fullscreen]="true">
-  <ion-header collapse="condense">
-    <ion-toolbar>
-      <ion-title size="large">Blank</ion-title>
-    </ion-toolbar>
-  </ion-header>
+<ion-content>
+  <ion-list>
 
-  <div id="container">
-    <strong>Ready to create an app?</strong>
-    <p>Start with Ionic <a target="_blank" rel="noopener noreferrer" href="https://ionicframework.com/docs/components">UI Components</a></p>
-  </div>
+    @for (meal of (meals$ | async); track meal.id) {
+
+      <ion-item-sliding [disabled]="isDesktop">
+        <ion-item>
+
+          <ion-label>
+            <h2>{{ meal.title }}</h2>
+            <p>{{ meal.date | date:'shortTime' }}</p>
+          </ion-label>
+
+          <ion-note slot="end" color="primary">
+            {{ meal.calories }} kcal
+          </ion-note>
+
+          @if (isDesktop) {
+            <ion-button
+              class="desktop-delete-btn" slot="end" fill="clear" color="danger" (click)="deleteMeal(meal.id)">
+              <ion-icon slot="icon-only" name="trash"></ion-icon>
+            </ion-button>
+          }
+
+        </ion-item>
+
+        <ion-item-options side="end">
+          <ion-item-option color="danger" (click)="deleteMeal(meal.id)">
+            <ion-icon slot="icon-only" name="trash"></ion-icon>
+          </ion-item-option>
+        </ion-item-options>
+      </ion-item-sliding>
+    }
+  </ion-list>
+
+  <ion-fab slot="fixed" vertical="bottom" horizontal="end">
+    <ion-fab-button (click)="addNewMeal()">
+      <ion-icon name="add"></ion-icon>
+    </ion-fab-button>
+  </ion-fab>
+
 </ion-content>
