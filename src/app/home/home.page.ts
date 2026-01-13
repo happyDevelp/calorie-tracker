@@ -122,8 +122,8 @@ export class HomePage implements OnInit {
 
 
   async deleteMeal(mealId: string) {
-    this.store.dispatch(MealActions.deleteMeal({ id: mealId }))
-}
+    this.store.dispatch(MealActions.deleteMeal({id: mealId}))
+  }
 
 
   async showErrorToast(message: string) {
