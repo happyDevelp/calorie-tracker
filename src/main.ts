@@ -12,6 +12,7 @@ import { AppComponent } from './app/app.component';
 import {importProvidersFrom} from "@angular/core";
 import {IonicStorageModule} from "@ionic/storage-angular";
 import {Drivers} from "@ionic/storage";
+import {MealEffects} from "./app/store/meal.effects";
 
 bootstrapApplication(AppComponent, {
   providers: [
@@ -21,7 +22,7 @@ bootstrapApplication(AppComponent, {
 
     // Initialize NgRx Store with our meals reducer
     provideStore({ meals: mealsReducer }),
-    provideEffects([]),
+    provideEffects([MealEffects]),
     // add Storage settings
     importProvidersFrom(
       IonicStorageModule.forRoot({
