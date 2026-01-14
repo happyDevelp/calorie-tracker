@@ -5,9 +5,13 @@ import { IonicRouteStrategy, provideIonicAngular } from '@ionic/angular/standalo
 // NgRx imports
 import { provideStore } from '@ngrx/store';
 import { mealsReducer } from './app/state/meals.reducer';
+import { provideEffects } from '@ngrx/effects';
 
 import { routes } from './app/app.routes';
 import { AppComponent } from './app/app.component';
+import {importProvidersFrom} from "@angular/core";
+import {IonicStorageModule} from "@ionic/storage-angular";
+import {Drivers} from "@ionic/storage";
 
 bootstrapApplication(AppComponent, {
   providers: [
@@ -16,8 +20,14 @@ bootstrapApplication(AppComponent, {
     provideRouter(routes, withPreloading(PreloadAllModules)),
 
     // Initialize NgRx Store with our meals reducer
-    provideStore({
-      meals: mealsReducer
-    })
+    provideStore({ meals: mealsReducer }),
+    provideEffects([]),
+    // add Storage settings
+    importProvidersFrom(
+      IonicStorageModule.forRoot({
+        name: 'calorie_tracker_db',
+        driverOrder: [Drivers.IndexedDB, Drivers.LocalStorage]
+      })
+    )
   ],
 });
