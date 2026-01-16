@@ -9,8 +9,10 @@ import {Store} from "@ngrx/store";
 import {selectAllMeals} from "../state/meals.selectors";
 import {MealActions} from "../state/meals.actions";
 import {addIcons} from "ionicons";
-import {add, alertCircleOutline, checkmarkCircleOutline, trash} from "ionicons/icons";
-import {ToastController} from "@ionic/angular";
+import {add, alertCircleOutline, checkmarkCircleOutline, sparkles, trash} from "ionicons/icons";
+import {LoadingController, ToastController} from "@ionic/angular";
+import {GeminiService} from "../services/gemini.service";
+import {Camera, CameraResultType, CameraSource} from "@capacitor/camera";
 
 @Component({
   selector: 'app-home',
@@ -37,12 +39,13 @@ import {ToastController} from "@ionic/angular";
   ],
 })
 
-export class HomePage implements OnInit {
+export class HomePage /*implements OnInit*/ {
 
   private store = inject(Store);
   meals$ = this.store.select(selectAllMeals);
 
-  // Inject a window controller
+  private aiService = inject(GeminiService);
+  private loadingController = inject(LoadingController);
   private alertController = inject(AlertController);
   private toastController = inject(ToastController);
   private platform = inject(Platform);
@@ -50,7 +53,7 @@ export class HomePage implements OnInit {
 
 
   constructor() {
-    addIcons({add, alertCircleOutline, checkmarkCircleOutline, trash});
+    addIcons({add, alertCircleOutline, checkmarkCircleOutline, trash, sparkles});
 
     // 2. Determine if this is a desktop browser
     // This function returns true if it's Windows, macOS, or Linux.
@@ -58,20 +61,54 @@ export class HomePage implements OnInit {
     this.isDesktop = this.platform.is('desktop');
   }
 
-
   // This is a method that is automatically called by Angular once when the component appears on the screen
-  ngOnInit() {
-    this.store.dispatch(MealActions.addMeal({
-      meal: {
-        id: Date.now().toString(),
-        title: 'Test Apple 🍎',
-        calories: 95,
-        date: new Date().toISOString()
+  /*  ngOnInit() {
+      this.store.dispatch(MealActions.addMeal({
+        meal: {
+          id: Date.now().toString(),
+          title: 'Test Apple',
+          calories: 95,
+          date: new Date().toISOString()
+        }
+      }));
+    }*/
+
+  async scanMeal() {
+    try {
+      const image = await Camera.getPhoto({
+        quality: 50,
+        allowEditing: false,
+        resultType: CameraResultType.Base64,
+        source: CameraSource.Prompt,
+      });
+
+      if (image.base64String) {
+        const loading = await this.loadingController.create({
+          message: 'Analyzing food... 🍔'
+        });
+        await loading.present();
+
+        try {
+          // Спробуємо розпізнати
+          const result = await this.aiService.analyzeImage(image.base64String);
+
+          // Якщо успіх - відкриваємо вікно
+          this.openAddModal(result.title, result.calories);
+        } catch (e) {
+          // Якщо AI помилився - показуємо тост, щоб ти бачив помилку на телефоні
+          console.error(e);
+          this.showToastToast('AI Error: ' + e, 'danger', 'alert-circle-outline');
+        }
+        finally {
+          await loading.dismiss();
+        }
       }
-    }));
+    }catch(error) {
+      console.error(error);
+    }
   }
 
-  async addNewMeal() {
+  async openAddModal(prefilledTitle: string = '', prefilledCalories: number | string = '') {
     const alert = await this.alertController.create({
       header: "Add Meal",
       inputs: [
@@ -79,11 +116,13 @@ export class HomePage implements OnInit {
           name: 'title',
           type: 'text',
           placeholder: "F.e. Pizza...",
+          value: prefilledTitle
         },
         {
           name: "calories",
           type: "number",
-          placeholder: "calories"
+          placeholder: "calories",
+          value: prefilledCalories
         }
       ],
       buttons: [
@@ -123,7 +162,7 @@ export class HomePage implements OnInit {
 
   async deleteMeal(mealId: string) {
     const alert = await this.alertController.create({
-      header:  "Delete Meal",
+      header: "Delete Meal",
       message: `Are you sure you want to delete Meal?`,
       buttons: [
         {

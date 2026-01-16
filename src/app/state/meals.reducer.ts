@@ -1,6 +1,7 @@
 import {Meal} from "../models/meal.model";
 import {MealActions} from "./meals.actions";
 import {createReducer, on} from '@ngrx/store';
+import {state} from "@angular/animations";
 
 export interface MealsState {
   meals: Meal[];
@@ -13,6 +14,11 @@ export const initialState: MealsState = {
 export const mealsReducer = createReducer(
   // first param of createReducer - initialState
   initialState,
+
+  on(MealActions.loadMealsSuccess, (state, { meals }) => ({
+    ...state,
+    meals: [...meals]
+  })),
 
   // on - listener for event. f.e.: If the "add meal" event/action comes, then execute the appropriate logic
   on(MealActions.addMeal, (state, {meal}) => ({
