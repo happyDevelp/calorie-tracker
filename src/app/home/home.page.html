@@ -40,9 +40,15 @@
   </ion-list>
 
   <ion-fab slot="fixed" vertical="bottom" horizontal="end">
-    <ion-fab-button (click)="addNewMeal()">
+
+    <ion-fab-button color="tertiary" size="small" (click)="scanMeal()" style="margin-bottom: 10px;">
+      <ion-icon name="sparkles"></ion-icon>
+    </ion-fab-button>
+
+    <ion-fab-button color="primary" (click)="openAddModal()">
       <ion-icon name="add"></ion-icon>
     </ion-fab-button>
+
   </ion-fab>
 
 </ion-content>

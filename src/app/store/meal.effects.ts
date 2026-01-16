@@ -30,10 +30,10 @@ export class MealEffects {
         ofType(MealActions.addMeal, MealActions.deleteMeal),
         withLatestFrom(this.store.select(selectAllMeals)),
         tap(([action, meals]) => {
-          console.log('Saving it in the phones memory:', meals); // Для перевірки в консолі
+          console.log('Saving it in the phones memory:', meals); // To check in the console
           this.storageService.saveMeals(meals);
         })
       ),
-    { dispatch: false } // Важливо: цей ефект не повертає новий Action
+    { dispatch: false } // Important: this effect does not return a new Action
   );
 }
