@@ -2,7 +2,7 @@ import {CommonModule} from '@angular/common';
 import {
   IonHeader, IonToolbar, IonTitle, IonContent,
   IonList, IonItem, IonLabel, IonNote, IonFab, IonFabButton, IonIcon, AlertController, IonItemSliding, IonItemOptions,
-  IonItemOption, IonButton, Platform
+  IonItemOption, IonButton, Platform, IonProgressBar
 } from '@ionic/angular/standalone';
 import {Component, inject, OnInit} from "@angular/core";
 import {Store} from "@ngrx/store";
@@ -10,7 +10,7 @@ import {selectAllMeals} from "../state/meals.selectors";
 import {MealActions} from "../state/meals.actions";
 import {addIcons} from "ionicons";
 import {add, alertCircleOutline, checkmarkCircleOutline, sparkles, trash} from "ionicons/icons";
-import {LoadingController, ToastController} from "@ionic/angular";
+import {ToastController} from "@ionic/angular";
 import {GeminiService} from "../services/gemini.service";
 import {Camera, CameraResultType, CameraSource} from "@capacitor/camera";
 
@@ -35,7 +35,8 @@ import {Camera, CameraResultType, CameraSource} from "@capacitor/camera";
     IonItemSliding,
     IonItemOptions,
     IonItemOption,
-    IonButton
+    IonButton,
+    IonProgressBar
   ],
 })
 
@@ -44,8 +45,8 @@ export class HomePage /*implements OnInit*/ {
   private store = inject(Store);
   meals$ = this.store.select(selectAllMeals);
 
+  isLoading = false;
   private aiService = inject(GeminiService);
-  private loadingController = inject(LoadingController);
   private alertController = inject(AlertController);
   private toastController = inject(ToastController);
   private platform = inject(Platform);
@@ -55,8 +56,6 @@ export class HomePage /*implements OnInit*/ {
   constructor() {
     addIcons({add, alertCircleOutline, checkmarkCircleOutline, trash, sparkles});
 
-    // 2. Determine if this is a desktop browser
-    // This function returns true if it's Windows, macOS, or Linux.
     // It will return false if it's a mobile browser or a native app
     this.isDesktop = this.platform.is('desktop');
   }
@@ -82,28 +81,29 @@ export class HomePage /*implements OnInit*/ {
         source: CameraSource.Prompt,
       });
 
+
       if (image.base64String) {
+        this.isLoading = true;
+        /*
         const loading = await this.loadingController.create({
           message: 'Analyzing food... 🍔'
         });
-        await loading.present();
+        await loading.present();*/
 
         try {
-          // Спробуємо розпізнати
+          // trying to recognize a picture
           const result = await this.aiService.analyzeImage(image.base64String);
 
-          // Якщо успіх - відкриваємо вікно
-          this.openAddModal(result.title, result.calories);
+          // If successful - open the window
+          await this.openAddModal(result.title, result.calories);
         } catch (e) {
-          // Якщо AI помилився - показуємо тост, щоб ти бачив помилку на телефоні
           console.error(e);
-          this.showToastToast('AI Error: ' + e, 'danger', 'alert-circle-outline');
-        }
-        finally {
-          await loading.dismiss();
+          await this.showToast('AI Error: ' + e, 'danger', 'alert-circle-outline');
+        } finally {
+          this.isLoading = false;
         }
       }
-    }catch(error) {
+    } catch (error) {
       console.error(error);
     }
   }
@@ -140,7 +140,7 @@ export class HomePage /*implements OnInit*/ {
 
             // VALIDATION: check whether the fields are not empty
             if (!data.title || !data.calories) {
-              this.showToastToast('Please fill in all fields!', 'danger', 'alert-circle-outline');
+              this.showToast('Please fill in all fields!', 'danger', 'alert-circle-outline');
               return false;
             }
             this.store.dispatch(MealActions.addMeal({
@@ -176,7 +176,7 @@ export class HomePage /*implements OnInit*/ {
           handler: () => {
             this.store.dispatch(MealActions.deleteMeal({id: mealId}))
 
-            this.showToastToast(
+            this.showToast(
               'Successfully deleted',
               'success',
               'checkmark-circle-outline'
@@ -190,7 +190,7 @@ export class HomePage /*implements OnInit*/ {
   }
 
 
-  async showToastToast(message: string, color: string, icon: string) {
+  async showToast(message: string, color: string, icon: string) {
     const toast = await this.toastController.create({
       message: message,
       duration: 2500,
