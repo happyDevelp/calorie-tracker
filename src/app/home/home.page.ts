@@ -56,8 +56,6 @@ export class HomePage /*implements OnInit*/ {
   constructor() {
     addIcons({add, alertCircleOutline, checkmarkCircleOutline, trash, sparkles});
 
-    // 2. Determine if this is a desktop browser
-    // This function returns true if it's Windows, macOS, or Linux.
     // It will return false if it's a mobile browser or a native app
     this.isDesktop = this.platform.is('desktop');
   }
